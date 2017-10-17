@@ -18,7 +18,7 @@ def getEdges(image):
     return edges
 
 def getLines(edges):
-    lines = cv.HoughLinesP(edges,1,np.pi/3600,80,20,10)
+    lines = cv.HoughLinesP(edges,1,np.pi/1800,80,20,10)
     #lines = cv.HoughLines(edges,1,np.pi/1800,100)
     count = 0
     ret = []
@@ -263,27 +263,17 @@ def getVPoints(num = 16):
                 VPoints.append(getCrossPoint(Groups[i][j],Groups[i][k]))
 
 def removeSame(list):
+    dic = {}
     ret = []
     flag = False
     for item in list:
         if item[0] == 'n':
             flag = True
-        tmp = [0,0]
-        tmp[0] = item[0]
-        tmp[1] = item[1]
-        if tmp[0] == 'a':
+        tmp = (item[0],item[1])
+        if dic.has_key(tmp):
             continue
-        for i in range(0,len(list)):
-            if i >= len(list):
-                break
-            if list[i][0] == tmp[0]:
-                if list[i][0] == 'p':
-                    if abs(list[i][1] - tmp[1]) < eps:
-                        list[i] = ('a','a')
-                else:
-                    if list[i][1] == tmp[1]:
-                        list[i] = ('a','a')
-        ret.append((tmp[0],tmp[1]))
+        dic[tmp] = 1
+        ret.append(tmp)
     if flag:
         ret.remove(('n','n'))
     return ret
@@ -511,11 +501,4 @@ def deal(inputname,outputname):
     fd.write('(' + str(ans[0][0]) + ',' + str(ans[0][1]) + ')(' + str(ans[1][0]) + ',' + str(ans[1][1]) + ')(' + str(ans[2][0]) + ',' + str(ans[2][1]) + ')')
     fd.close
 
-for i in range(10,14,1):
-    deal(str(i) + '.jpg',str(i))
-
-
-#cv.namedWindow('image',cv.WINDOW_NORMAL)
-#cv.imshow('image',edges)
-#cv.waitKey(0)
-#cv.destroyAllWindows()
+deal("1.jpg",'1')
