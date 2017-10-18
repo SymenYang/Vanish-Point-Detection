@@ -1,5 +1,6 @@
 *.png
 *.jpg
 *.txt
+*.pyc
 text.py
 /.vscode
