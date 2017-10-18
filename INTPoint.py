@@ -9,8 +9,6 @@ eps = 1e-7
 def getIntersectPoint(linea,lineb):
     a1,b1,c1 = Edges.getLineABC(linea)
     a2,b2,c2 = Edges.getLineABC(lineb)
-    if abs(abs(a2/b2) - 1.0) < eps:
-        pass
     if a2 != 0 and b2 != 0:
         if abs(a1/a2 - b1/b2) <= eps:
             return ('p',a2/b2)
@@ -96,24 +94,31 @@ def voteForPoint(lines,VPoints):
         a,b,c = Edges.getLineABC(line)
         lens = getLinesLength(line)
         for p in VPoints:
-            if p == (803,203):
-                pass
+            fakep = p
             if p[0] == 'h':
                 if a == 0:
                     votes[p] += lens
                     voters[p] += 1
-                continue
+                    continue
+                else:
+                    fakep = (1000000,line[1])
             if p[0] == 'v':
                 if b == 0:
                     votes[p] += lens
                     voters[p] += 1
-                continue
+                    continue
+                else:
+                    fakep = (line[0],1000000)
             if p[0] == 'p':
+                if b == 0:
+                    continue
                 if abs(a/b-p[1]) < eps:
                     votes[p] += lens
                     voters[p] += 1
-                continue
-            arch = getArch(line,p)
+                    continue
+                else:
+                    fakep = (line[0] + 1000000,line[1] + p[1] * 1000000)
+            arch = getArch(line,fakep)
             if arch >= math.pi/18:
                 continue
             votes[p] += lens * math.exp(-( arch / ( 2 * (0.1 ** 2 ) ) ) )

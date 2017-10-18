@@ -134,13 +134,13 @@ def getLineABC(line):
         return a,b,c
     b = float(x1 - x2) / (y1*x2 - y2*x1)
     a = -(b * y2 + c) / x2
-    if abs(a - 0) <= eps:
+    if abs(a - 0) <= 2 * 1e-5:
         a = 0
-    if abs(b - 0) <= eps:
+    if abs(b - 0) <= 2 * 1e-5:
         b = 0
-    if abs(a * x1 + b * y1 + c) - 0 >= eps or abs(a * x2 + b * y2 + c) - 0 >= eps:
-        print (a * x1 + b * y1 + c,a * x2 + b * y2 + c)
-        pass
+#    if abs(a * x1 + b * y1 + c) - 0 >= eps or abs(a * x2 + b * y2 + c) - 0 >= eps:
+#        print (a * x1 + b * y1 + c,a * x2 + b * y2 + c)
+#        pass
     return a,b,c
 
 def getCirAnch(a,b):
@@ -240,7 +240,6 @@ def mergeLines(lines):
             tmp[count].append((lines[i],i))
             now = count
             count += 1
-        print i
         for j in range(i+1,len(lines),1):
             if shouldMerge(lines[i],lines[j]):
                 if used[j] == -1:
