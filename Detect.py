@@ -43,30 +43,7 @@ def shouldMerge(line1,line2):
 def mergeLines(lines):
     #moved to Edges.py
     return Edges.mergeLines(lines)
-'''
-def devideIntoGroups(lines,num = 16):
-    for i in range(0,num + 1,1):
-        Groups.append([])
-    d = np.pi / num
-    for line in lines:
-        y = line[3] - line[1]
-        x = line[2] - line[0]
-        if x <= 0:
-            if x == 0:
-                y = abs(y)
-            else:
-                y = -y
-                x = -x
-        tan = float(y) / x
-        if tan > 1e9:
-            Groups[num].append([line[0],line[1],line[2],line[3]])
-            continue
-        arch = np.arctan(tan) + np.pi / 2
-        group = int(math.floor(arch / d))
-        if group >= num:
-            pass
-        Groups[group].append([line[0],line[1],line[2],line[3]])
-'''
+
 def getLineABC(line):
     #moved to Edges.py
     return Edges.getLineABC(line)
