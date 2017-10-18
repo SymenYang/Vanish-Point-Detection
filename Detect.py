@@ -2,6 +2,8 @@ import cv2 as cv
 import numpy as np
 import copy
 import math
+import Edges
+import INTPoint
 
 eps = 1e-7
 votes = {}
@@ -11,139 +13,36 @@ Centers = []
 Cluster = []
 voters = {}
 def getEdges(image):
-    blur = cv.bilateralFilter(image,9,75,75)
-    gray = cv.cvtColor(blur,cv.COLOR_BGR2GRAY)
-    #blur2 = cv.GaussianBlur(gray,(5,5),0)
-    edges = cv.Canny(gray,50,200,apertureSize = 3)
-    return edges
+    #moved to Edges.py
+    return Edges.getEdges(image)
 
 def getLines(edges):
-    lines = cv.HoughLinesP(edges,1,np.pi/1800,80,20,10)
-    #lines = cv.HoughLines(edges,1,np.pi/1800,100)
-    count = 0
-    ret = []
-    for t in lines:
-        x1 = t[0][0]
-        x2 = t[0][2]
-        y1 = t[0][1]
-        y2 = t[0][3]
-        if (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 900:
-            count += 1
-            continue
-        ret.append([x1,y1,x2,y2])
-    
-    return ret
+    #moved to Edges.py
+    return Edges.getLines(edges)
 
 def checkRound(pos,edges):
-    patx = [-1,1,0,0,-1,1,-1,1]
-    paty = [0,0,-1,1,-1,-1,1,1]
-    x = pos[1]
-    y = pos[0]
-    for i in range(0,8):
-        if outOfSize((y + paty[i],x + patx[i]),edges):
-            continue
-        if edges[x + patx[i]][y + paty[i]] == 255:
-            return True
-    return False
+    #moved to Edges.py
+    return Edges.checkRound(pos,edges)
 
 def outOfSize(pos,edges):
-    return pos[1] < 0 or pos[1] >= edges.shape[0] or pos[0] < 0 or pos[0] >= edges.shape[1]
+    #moved to Edges.py
+    return Edges.outOfSize(pos,edges)
 
 def extenLine(line,edges):
-    x1 = line[0]
-    y1 = line[1]
-    x2 = line[2]
-    y2 = line[3]
-    
-    dx = x2 - x1
-    dy = y2 - y1
-    nowx = x2
-    nowy = y2 * 1.0
-    sy = 0
-    if dy > 0:
-        sy = 1
-    else:
-        sy = -1
-    if dx > 0:
-        sx = 1
-    else:
-        sx = -1
-    
-    if dx == 0:
-        while not outOfSize((nowx,int(nowy)),edges):
-            nowy += sy
-            if checkRound((nowx,int(nowy)),edges):
-                pass
-            else:
-                break
-        retx2 = nowx
-        rety2 = nowy
-        nowx = x1
-        nowy = y1
-        while not outOfSize((nowx,int(nowy)),edges):
-            nowy -= sy
-            if checkRound((nowx,int(nowy)),edges):
-                pass
-            else:
-                break
-        retx1 = nowx
-        rety1 = nowy
-        return [retx1,int(rety1),retx2,int(rety2)]
-
-    k = float(dy) / dx
-    while not outOfSize((nowx,int(nowy)),edges):
-        nowx += sx
-        nowy += k
-        if checkRound((nowx,int(nowy)),edges):
-            pass
-        else:
-            break
-    retx2 = nowx
-    rety2 = nowy
-    nowx = x1
-    nowy = y1
-    while not outOfSize((nowx,int(nowy)),edges):
-        nowx -= sx
-        nowy -= k
-        if checkRound((nowx,int(nowy)),edges):
-            pass
-        else:
-            break
-    retx1 = nowx
-    rety1 = nowy
-    return [retx1,int(rety1),retx2,int(rety2)]
+    #moved to Edges.py
+    return Edges.extenLine(line,edges)
 
 def extenLines(lines,edges):
-    for line in lines:
-        extl = extenLine(line,edges)
-        line[0] = extl[0]
-        line[1] = extl[1]
-        line[2] = extl[2]
-        line[3] = extl[3]
-    return lines
+    #moved to Edges.py
+    return Edges.extenLines(lines,edges)
 
 def shouldMerge(line1,line2):
-    d = 0.0
-    for i in range(0,4,1):
-        d += abs(line1[i] - line2[i])
-
-    if d <= 25:
-        return True
-    return False
+    #moved to Edges.py
+    return Edges.shouldMerge(line1,line2)
 
 def mergeLines(lines):
-    ret = []
-    lens = len(lines)
-    for i in range(0,lens,1):
-        if lines[i][0] == 'N':
-            continue
-        for j in range(i+1,lens,1):
-            if lines[j][0] == 'N':
-                continue
-            if shouldMerge(lines[i],lines[j]):
-                lines[j][0] = 'N'
-        ret.append((lines[i][0] , lines[i][1] , lines[i][2] , lines[i][3]))
-    return ret
+    #moved to Edges.py
+    return Edges.mergeLines(lines)
 '''
 def devideIntoGroups(lines,num = 16):
     for i in range(0,num + 1,1):
@@ -169,93 +68,29 @@ def devideIntoGroups(lines,num = 16):
         Groups[group].append([line[0],line[1],line[2],line[3]])
 '''
 def getLineABC(line):
-    x1 = line[0]
-    x2 = line[2]
-    y1 = line[1]
-    y2 = line[3]
-    if x2 < x1:
-        tmp = x2
-        x2 = x1
-        x1 = tmp
-        tmp = y2
-        y2 = y1
-        y1 = tmp
-    
-    c = 1
-    if y1 * x2 == y2 * x1:
-        c = 0
-        b = 1.0
-        a = -(b * y2 + c) / x2
-        return a,b,c
-    b = float(x1 - x2) / (y1*x2 - y2*x1)
-    a = -(b * y2 + c) / x2
-    if abs(a - 0) <= eps:
-        a = 0
-    if abs(b - 0) <= eps:
-        b = 0
-    if abs(a * x1 + b * y1 + c) - 0 >= eps or abs(a * x2 + b * y2 + c) - 0 >= eps:
-        print (a * x1 + b * y1 + c,a * x2 + b * y2 + c)
-        pass
-    return a,b,c
+    #moved to Edges.py
+    return Edges.getLineABC(line)
 
 def getCirAnch(a,b):
-    if b == 0:
-        return math.pi / 2
-    else:
-        return math.atan(a/(-b))
+    #moved to Edges.py
+    return Edges.getCirAnch(a,b)
 
 def getCrossPoint(linea,lineb):
-    a1,b1,c1 = getLineABC(linea)
-    a2,b2,c2 = getLineABC(lineb)
-    if abs(abs(a2/b2) - 1.0) < eps:
-        pass
-    if a2 != 0 and b2 != 0:
-        if abs(a1/a2 - b1/b2) <= eps:
-            return ('p',a2/b2)
-    else:
-        if a2 == 0 and b2 == 0:
-            pass
-        if a1 == 0 and a2 == 0:
-            return ('h','h')
-        if b1 == 0 and b2 == 0:
-            return ('v','v')
-
-    if abs(getCirAnch(a1,b1) - getCirAnch(a2,b2)) <= 0.03:
-        return ('n','n')
-    try:
-        y = (1 - float(a2)/a1) / ((b1 * float(a2) / a1) - b2)
-        x = (-y * b1 - 1) / a1
-    except:
-        return('n','n')
-    return (int(x),int(y))
+    #moved to INTPoint.py
+    return INTPoint.getIntersectPoint(linea,lineb)
 
 def sortLines(lines):
-    tmp = {}
-    for line in lines:
-        index = (line[0],line[1],line[2],line[3])
-        a,b,c, = getLineABC(line)
-        data = getCirAnch(a,b)
-        tmp[index] = data
-    tmp = sorted(tmp.iteritems(),key=lambda tmp:tmp[1],reverse=False)
-    ret = []
-    for item in tmp:
-        ret.append([item[0][0],item[0][1],item[0][2],item[0][3],item[1]])
-    return ret
+    #moved to Edges.py
+    return Edges.sortLines(lines)
 
-def getVPoints2(lines,arange = 0.298):
-    l = 0
-    r = 0
-    for i in range(0,len(lines),1):
-        while (lines[r][4] - lines[i][4] <= arange and r < len(lines) - 1):
-            r += 1
-        while (lines[i][4] - lines[l][4] >= arange):
-            l += 1
-        for j in range(l,r,1):
-            if j == i:
-                continue
-            VPoints.append(getCrossPoint(lines[i],lines[j]))
+def getVPoints2(lines,arange = 0.2617):
+    #moved to INTPoint.py
+    global VPoints
+    VPoints = INTPoint.getVPoints2(lines,arange)
+    return VPoints
 
 def getVPoints(num = 16):
+    #this function is fallen into disuse because of the low speed
     for i in range(0,num + 1,1):
         lens = len(Groups[i])
         for j in range(0,lens,1):
@@ -263,76 +98,26 @@ def getVPoints(num = 16):
                 VPoints.append(getCrossPoint(Groups[i][j],Groups[i][k]))
 
 def removeSame(list):
-    dic = {}
-    ret = []
-    flag = False
-    for item in list:
-        if item[0] == 'n':
-            flag = True
-        tmp = (item[0],item[1])
-        if dic.has_key(tmp):
-            continue
-        dic[tmp] = 1
-        ret.append(tmp)
-    if flag:
-        ret.remove(('n','n'))
-    return ret
+    #moved to INTPoint.py
+    return INTPoint.removeSame(list)
 
 def getLinesLength(line):
-    return math.sqrt((line[3] - line[1]) ** 2 + (line[2] - line[0]) ** 2)
+    #moved to INTPoint.py
+    return INTPoint.getLinesLength(line)
 
 def getMidPoint(line):
-    return ((line[0] + line[2]) / 2,(line[1] + line[3]) / 2)
+    #moved to INTPoint.py
+    return INTPoint.getMidPoint(line)
 
 def getArch(line,point):
-    Mid = getMidPoint(line)
-    dx = line[0] - Mid[0]
-    dy = line[1] - Mid[1]
-    px = point[0] - Mid[0]
-    py = point[1] - Mid[1]
-    dot = dx*px + dy * py
-    lens = math.sqrt(dx ** 2 + dy ** 2)
-    lens2 = math.sqrt(px ** 2 + py ** 2)
-    mir = dot / lens
-    cos = abs(mir / lens2)
-    if abs(cos) > 1:
-        cos = float(int(cos))
-    arch = math.acos(cos)
-    return arch
+    #moved to INTPoint.py
+    return INTPoint.getArch(line,point)
 
 def voteForPoint(lines):
-    for p in VPoints:
-        votes[p] = 0.0
-        voters[p] = 0
-    for line in lines:
-        a,b,c = getLineABC(line)
-        lens = getLinesLength(line)
-        for p in VPoints:
-            if p == (387,77):
-                pass
-            if p[0] == 'h':
-                if a == 0:
-                    votes[p] += lens
-                    voters[p] += 1
-                continue
-            if p[0] == 'v':
-                if b == 0:
-                    votes[p] += lens
-                    voters[p] += 1
-                continue
-            if p[0] == 'p':
-                if abs(a/b-p[1]) < eps:
-                    votes[p] += lens
-                    voters[p] += 1
-                continue
-            arch = getArch(line,p)
-            if arch >= math.pi/18:
-                continue
-            votes[p] += lens * math.exp(-( arch / ( 2 * (0.1 ** 2 ) ) ) )
-            voters[p] += 1
-    for item in votes:
-        if voters[item] <= 4:
-            votes[item] = 0
+    #moved to INTPoint.py
+    global votes
+    global voters
+    votes,voters = INTPoint.voteForPoint(lines,VPoints)
     return
 
 def getGraPoint(points):
@@ -456,7 +241,7 @@ def deal(inputname,outputname):
     VPoints = removeSame(VPoints)
     voteForPoint(lines2)
     votes2 = sorted(votes.iteritems(),key=lambda votes:votes[1],reverse=True)
-    lenofvotes = max(5,int(len(votes2) * 0.3))
+    lenofvotes = min(len(votes2),max(5,int(len(votes2) * 0.2)))
     votesFinal = {}
     VPoints = []
     for i in range(0,lenofvotes,1):
@@ -501,4 +286,4 @@ def deal(inputname,outputname):
     fd.write('(' + str(ans[0][0]) + ',' + str(ans[0][1]) + ')(' + str(ans[1][0]) + ',' + str(ans[1][1]) + ')(' + str(ans[2][0]) + ',' + str(ans[2][1]) + ')')
     fd.close
 
-deal("1.jpg",'1')
+deal("data/1.jpg",'1')
