@@ -21,20 +21,20 @@
 ## 部分效果展示
 13份测试数据在data文件夹中，输出结果在data/result/中
 <div align='center'\>
-　　<img src='https://github.com/SymenYang/Vanish-Point-Detect/blob/master/data/1.jpg' width=300 />
+　　<img src='https://github.com/SymenYang/Vanish-Point-Detect/blob/master/data/1.jpg'  />
 </div>
 <div align='center'\>
-　　<img src='https://github.com/SymenYang/Vanish-Point-Detect/blob/master/data/result/1_final.jpg' width=300 />
+　　<img src='https://github.com/SymenYang/Vanish-Point-Detect/blob/master/data/result/1_final.jpg' />
 </div>
 <div align='center'\>
-　　<img src='https://github.com/SymenYang/Vanish-Point-Detect/blob/master/data/3.jpg' width=300 />
+　　<img src='https://github.com/SymenYang/Vanish-Point-Detect/blob/master/data/3.jpg' />
 </div>
 <div align='center'\>
-　　<img src='https://github.com/SymenYang/Vanish-Point-Detect/blob/master/data/result/3_final.jpg' width=300 />
+　　<img src='https://github.com/SymenYang/Vanish-Point-Detect/blob/master/data/result/3_final.jpg'  />
 </div>
 <div align='center'\>
-　　<img src='https://github.com/SymenYang/Vanish-Point-Detect/blob/master/data/8.jpg' width=300 />
+　　<img src='https://github.com/SymenYang/Vanish-Point-Detect/blob/master/data/8.jpg'  />
 </div>
 <div align='center'\>
-　　<img src='https://github.com/SymenYang/Vanish-Point-Detect/blob/master/data/result/8_final.jpg' width=300 />
+　　<img src='https://github.com/SymenYang/Vanish-Point-Detect/blob/master/data/result/8_final.jpg'  />
 </div>
