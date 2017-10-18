@@ -2,5 +2,5 @@
 *.jpg
 *.txt
 *.pyc
-text.py
+test.py
 /.vscode
