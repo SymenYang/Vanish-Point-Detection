@@ -31,3 +31,24 @@
 <div align='center'\>
 　　<img src='https://github.com/SymenYang/Vanish-Point-Detect/blob/master/data/result/8_final.jpg'  />
 </div>
+
+--------
+## Project introduction
+Vanish point detect is an important step of some plane/road detection algorithm.When a 3D object project into 2D space(such as been drawn), the lines which are parallel in 3D may not be parallel in 2D space,and they may intersect in one point which is the vanish point. This project realized an algorithm which can detect vanish points from single image.
+
+## Algorithm introduction
+This algorithm first caculate some candidate points, and then each line votes for the points. This project also solved some corner work. As follow is the full algorithm:
+1. Use bilateral filters for noise reducion.
+2. Use Canny edge-detection algorithm to detect edges.
+3. Use Probabilistic Hough Transform to detect line's segments.
+4. Extend the segments as long as we can and get the final line segments.
+5. Merge close segments into one segment(use Hierarchical clustering).
+6. Sort all segments by slope and get candidate points by caculate the intersect point of lines which are close in slope.
+7. Each line votes for each candidate point. Votes value is | l | * e ^ (theta / (2 * u ^ 2)),where l is line segment's length;$theta$ is the angle of line segment and line through line segment's midpoint and candidate point;;u is a parameter which is set to 0.1.
+8. Get clusters from candidate points use Hierarchical clustering algorithm.The end condition is the min_distance is bigger than 50px.
+9. Get the gravity center for each cluster, and use the gravity center as a new candidate point whose value is the sum of this cluster's value.
+10. Choose the most voted point as the first vanish point, and remove line segments that belong to this vanish point. Jump to step 6.
+11. If there is no line segments, or no candidate points, or algorithm already found three vannish point: halt and output.
+
+## testdata & result
+Test data is under 'data/'. The result for each image is under 'data/result/'.
