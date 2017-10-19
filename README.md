@@ -48,7 +48,7 @@ This algorithm first caculate some candidate points, and then each line votes fo
 8. Get clusters from candidate points use Hierarchical clustering algorithm.The end condition is the min_distance is bigger than 50px.
 9. Get the gravity center for each cluster, and use the gravity center as a new candidate point whose value is the sum of this cluster's value.
 10. Choose the most voted point as the first vanish point, and remove line segments that belong to this vanish point. Jump to step 6.
-11. If there is no line segments, or no candidate points, or algorithm already found three vannish point: halt and output.
+11. If there is no line segments, or no candidate points, or algorithm already found three vanish point: halt and output.
 
 ## testdata & result
 Test data is under 'data/'. The result for each image is under 'data/result/'.
